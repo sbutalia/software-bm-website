@@ -14,6 +14,12 @@
         <meta name="description" content="">
         <title>Beckford Holiday Program 2022 - Available Soon</title>
 
+
+        <!-- Main style sheet -->
+        <link rel="stylesheet" type="text/css" href="../css/style.css">
+        <!-- responsive style sheet -->
+        <link rel="stylesheet" type="text/css" href="../css/responsive.css">
+
         <style>
           body {
             background:black;
@@ -22,10 +28,41 @@
             background-image: url('bg.jpg');
             }
 
+            .top-spacer{
+                margin-top: 10%;
+            }
+
             #avialsoon{
                 margin-left: 18%;
-                margin-top: 2%;
+                margin-top: 5%;
                 width: 65%;
+            }
+
+            #helpguide{
+                margin-top:50px;
+            }
+
+            #helpguide span{
+                font-size: 20px;
+                color: #FAEBD7;
+            }
+
+            #bfmlogo{
+                text-align:center;
+                display:block;
+                margin:auto;
+                margin-bottom: 20px;
+            }
+
+            .img-center {
+                text-align:center;
+                display:block;
+                margin:auto;
+            }
+
+            .click-through{
+                font-size: 25px;
+                color: #7FFFD4;
             }
 
             @media screen and (min-device-width:320px) and (max-device-width:1068px) {
@@ -39,7 +76,29 @@
     </head>
 
     <body>
-        <img id="avialsoon" src="availsoonclear.png"/>
+        <div class="main-page-wrapper">
+                <div class="top-spacer">
+                </div>
+                <div class="what-we-do">
+                    <div class="container">
+                        <a href="https://live.eluv.io/beckford-media/holiday-program-2022">
+                            <img id="bfmlogo" src="BeckfordMedia_v1.png" class="img-center" width="50%"/>
+                            <span class="click-through">Click Here to visit the Beckford Media Portal!</span>
+                        </a>
+
+                        <a id="helpguide" href="https://docs.google.com/document/d/1z6g6cbdehJHfAv9zNiB0VHHWQ8m5ade4Mj0Y1v50f_M/edit?usp=sharing">
+                            <span>Help Guide</span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div class="what-we-do">
+                    <div class="container">
+                        <a href="https://software.butaliamedia.com">Butalia Media</a>
+                    </div>
+                </div>
+        </div>
 
     </body>
 

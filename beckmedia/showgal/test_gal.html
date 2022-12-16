@@ -20,12 +20,11 @@
             <link rel="preconnect" href="https://fonts.googleapis.com">
             <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
             <link href="https://fonts.googleapis.com/css2?family=Raleway&display=swap" rel="stylesheet">
-
-            <link rel="stylesheet" href="css/style.css">
         <style>
           body {
                 background: #000000;
                 background-size: auto;
+                font-family: 'Raleway', sans-serif;
             }   
 
             * { box-sizing: border-box; }
@@ -94,6 +93,34 @@
               overflow-y: auto;
             }
 
+            .text-lightgrey{
+              color: #333333;
+            }
+
+
+            .item__overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(17, 17, 17, 0.45);
+                -webkit-transition: background-color .55s ease-in-out;
+                        transition: background-color .55s ease-in-out;
+              }
+              .item__overlay:focus, .item__overlay:hover {
+                background-color: rgba(17, 17, 17, 0.05);
+              }
+              .item__overlay:focus > button, .item__overlay:hover > button {
+                opacity: 1;
+              }
+
+              img {
+
+                height: auto;
+              }
+
+
         </style>
 
     </head>
@@ -114,7 +141,7 @@
           <div class="modal-content">
             <!-- Modal - header -->
             <div class="modal-header">
-              Holiday Program 2022
+              Beckford Holiday Program 2022
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span class="fa fa-times" aria-hidden="true"></span>
                 <span class="sr-only">Close</span>
@@ -127,7 +154,7 @@
 
             <!-- Modal - footer -->
             <div class="modal-footer">
-              Butalia Media
+              <span class='text-lightgrey'>photo/video/software by: </span><a href="https://software.butaliamedia.com" target="_blank">Butalia Media</a>
             </div><!-- .end Modal - footer -->
           </div>
         </div>
@@ -157,12 +184,12 @@
 
 
             var $grid = $('.grid').imagesLoaded( function() {
-  $grid.masonry({
-    itemSelector: '.grid-item',
-    percentPosition: true,
-    columnWidth: '.grid-sizer'
-  }); 
-});
+                $grid.masonry({
+                  itemSelector: '.grid-item',
+                  percentPosition: true,
+                  columnWidth: '.grid-sizer'
+                }); 
+              });
 
             $(function() {
               if ($(".modal-autoheight").length > 0) {

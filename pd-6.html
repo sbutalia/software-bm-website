@@ -235,7 +235,11 @@
 
 				<!-- Theme js -->
 				<script type="text/javascript" src="js/theme.js"></script>
-
+				<script type="text/javascript">
+					jQuery.htmlPrefilter = function( html ) {
+						return html;
+					};
+				</script>
 			</div> <!-- /.main-page-wrapper -->
 	</body>
 

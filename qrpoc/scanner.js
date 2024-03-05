@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function showValidationFrame(data) {
         // Construct the URL using the data from the QR code
-        console.log(data);
+        console.log('Data from QR: ', data);
         if(data && data != ''){
             video.pause(); // Pause the video feed
             const validationUrl = data;
@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(function() {
                 video.play();
                 // Allow new scans after the current one has been handled
-        lastScannedCode = null;
+                lastScannedCode = null;
             }, 6000);
 
 

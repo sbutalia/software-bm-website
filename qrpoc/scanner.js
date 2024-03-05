@@ -37,22 +37,22 @@ document.addEventListener('DOMContentLoaded', () => {
     function showValidationFrame(data) {
         // Construct the URL using the data from the QR code
         console.log(data);
-        video.pause(); // Pause the video feed
-        const validationUrl = data;
-        const newWindow = window.open(validationUrl, '_blank');
-    
-        setTimeout(function() {
-            video.play();
-            // Allow new scans after the current one has been handled
-            lastScannedCode = null;
-        }, 6000);
-    
-        setTimeout(function() {
-            newWindow.close();
-        }, 7000);
-    }
+        if(data && data != ''){
+            video.pause(); // Pause the video feed
+            const validationUrl = data;
+            const newWindow = window.open(validationUrl, '_blank');
+            setTimeout(function() {
+                video.play();
+                // Allow new scans after the current one has been handled
+        lastScannedCode = null;
+            }, 6000);
 
-    
+
+            setTimeout(function() {
+                newWindow.close();
+            }, 7000);
+        }
+    }
     function validateQRCode(data) {
         // Insert the correct parameters into the URL based on the scanned QR data
         const validationUrl = `https://chs--partial.sandbox.my.site.com/QRValidator/validate?c__r=${encodeURIComponent(data.c__r)}&c__gs=${data.c__gs}&c__cs=${data.c__cs}&c__t=${data.c__t}`;

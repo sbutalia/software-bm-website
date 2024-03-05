@@ -14,6 +14,8 @@ document.addEventListener('DOMContentLoaded', () => {
             requestAnimationFrame(tick);
         });
 
+    let lastScannedCode = null;
+    
     function tick() {
         if (video.readyState === video.HAVE_ENOUGH_DATA) {
             canvasElement.hidden = false;
@@ -24,9 +26,9 @@ document.addEventListener('DOMContentLoaded', () => {
             var code = jsQR(imageData.data, imageData.width, imageData.height, {
                 inversionAttempts: "dontInvert",
             });
-            if (code) {
-                video.pause(); // Pause the video feed
-                showValidationFrame(code.data); // Placeholder for your validation function
+            if (code && code.data !== lastScannedCode) {
+                lastScannedCode = code.data;
+                showValidationFrame(code.data);
             }
         }
         requestAnimationFrame(tick);
@@ -35,17 +37,22 @@ document.addEventListener('DOMContentLoaded', () => {
     function showValidationFrame(data) {
         // Construct the URL using the data from the QR code
         console.log(data);
+        video.pause(); // Pause the video feed
         const validationUrl = data;
         const newWindow = window.open(validationUrl, '_blank');
+    
         setTimeout(function() {
             video.play();
+            // Allow new scans after the current one has been handled
+            lastScannedCode = null;
         }, 6000);
-
-
+    
         setTimeout(function() {
             newWindow.close();
         }, 7000);
     }
+
+    
     function validateQRCode(data) {
         // Insert the correct parameters into the URL based on the scanned QR data
         const validationUrl = `https://chs--partial.sandbox.my.site.com/QRValidator/validate?c__r=${encodeURIComponent(data.c__r)}&c__gs=${data.c__gs}&c__cs=${data.c__cs}&c__t=${data.c__t}`;

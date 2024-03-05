@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 video.play();
                 // Allow new scans after the current one has been handled
                 lastScannedCode = null;
-            }, 6000);
+            }, 3000);
 
 
             setTimeout(function() {

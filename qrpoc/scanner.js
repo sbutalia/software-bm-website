@@ -23,7 +23,15 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(requestAnimationFrame, tickDelay, tick);
         });
 
-    
+    function showLoader() {
+        document.getElementById('loader').style.display = 'block';
+    }
+
+    function hideLoader() {
+        document.getElementById('loader').style.display = 'none';
+    }
+      
+ 
     function tick() {
         if (isProcessingScan) {
             requestAnimationFrame(tick);
@@ -51,6 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     // Process the scan with some delay to debounce
                     setTimeout(() => {
+                        
                         handleQRCode(code.data);
                         isProcessingScan = false; // Release the lock after processing
                     }, 500); // Adjust the timeout to control the debounce delay
@@ -76,6 +85,7 @@ async function handleQRCode(data) {
 
             console.log("params: ", params);
 
+            showLoader();
             const url = 'https://paper-coffee-mouse.glitch.me/validate-qr';
             const queryParams = {
                 language: 'en-US',
@@ -120,6 +130,7 @@ async function handleQRCode(data) {
 
 function resetVideo(){
     setTimeout(function() {
+        hideLoader();
         video.play();
         // Allow new scans after the current one has been handled
         lastScannedCode = null;

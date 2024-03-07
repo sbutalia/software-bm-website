@@ -6,6 +6,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const scanDelay = 2000; // Delay between scans in millisecond
     const tickDelay = 30; // Delay between camera ticks in millisecond
 
+    const beepSound = document.getElementById('beep-sound');
+    
     const video = document.getElementById('qr-video');
     const canvasElement = document.getElementById('qr-canvas');
     const canvas = canvasElement.getContext('2d', { willReadFrequently: true });
@@ -65,10 +67,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if(data && data != ''){
             video.pause(); // Pause the video feed
             const validationUrl = data;
+            beepSound.play();
             const newWindow = window.open(validationUrl, '_blank');
 
             const currentDate = new Date();
-            scans.unshift({ data: data, date: currentDate }); // Add to the front of the array
+            scans.push({ data: data, date: currentDate }); // Add to the front of the array
             scans = scans.slice(0, 10); // Keep only the last 10
             renderTable();
 
@@ -97,29 +100,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     
     function renderTable() {
+        console.log('@renderTable', scans);
         const table = document.getElementById('scans-table');
-        // Clear all rows except the header
-        table.innerHTML = '<tr><th>Data</th><th>Date</th></tr>';
-
-        // Insert new rows for the scan history
-        scans.slice(0, 10).forEach(scan => {
-            let row = table.insertRow(1); // insert at top after header
-            let cell1 = row.insertCell(0);
-            let cell2 = row.insertCell(1);
-            let a = document.createElement('a');
-            a.href = scan.data;
-            a.textContent = scan.data;
-            a.target = "_blank"; // Open in new tab
-            a.onclick = function() {
-                loadLinkInWindow(scan.data); // Call validation frame function on click
-                return false; // Prevent default action
-            };
-            cell1.appendChild(a);
-
-
-            cell2.textContent = scan.date.toLocaleString();
-        });
+        // Assuming 'scans' is an array holding your last 10 scans, latest first.
+        
+        // Clear existing rows except the header
+        while (table.rows.length > 1) {
+            table.deleteRow(1);
+        }
+    
+        // Add new rows to the table
+        for (const scan of scans) {
+            let row = table.insertRow(1); // This ensures the newest scan is on top, below the header
+            let cellData = row.insertCell(0);
+            let cellDate = row.insertCell(1);
+            
+            // Assuming 'scan' is an object with 'data' and 'date' properties
+            cellData.innerHTML = `<a href="${scan.data}" target="_blank">${scan.data}</a>`;
+            cellDate.textContent = scan.date.toLocaleString();
+        };
+        
     }
+    
 
     
 });

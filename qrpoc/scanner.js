@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let lastScannedCode = null;
     let lastScanTime = Date.now();
-    const scanDelay = 1500; // Delay between scans in millisecond
+    const scanDelay = 2000; // Delay between scans in millisecond
     
     function tick() {
         if (video.readyState === video.HAVE_ENOUGH_DATA) {
@@ -31,6 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     inversionAttempts: "dontInvert",
                 });
                 if (code && code.data !== lastScannedCode) {
+                    console.log(lastScannedCode , code.data)
                     lastScannedCode = code.data;
                     lastScannedTime = Date.now(); // Update the last scanned time
                     showValidationFrame(code.data);

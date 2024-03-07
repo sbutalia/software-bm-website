@@ -117,3 +117,11 @@ a {
 a:hover {
     text-decoration: underline; /* Underline on hover */
 }
+
+.status-ok {
+    background-color: #417441; /* Pastel green */
+}
+
+.status-expired {
+    background-color: #6f3c3c; /* Pastel red */
+}

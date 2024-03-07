@@ -212,6 +212,14 @@ function addScan(scan) {
             cellStatus.innerHTML = scan.status.returnValue.messageToDisplay;
             cellDate.textContent = scan.date.toLocaleString();
             cellLink.innerHTML = `<a href="${scan.data}" target="_blank"> Open </a>`;
+
+
+            // Check the status message and apply color accordingly
+            if (scan.status.returnValue.messageToDisplay.includes("expired")) {
+                cellStatus.classList.add('status-expired');
+            } else {
+                cellStatus.classList.add('status-ok');
+            }            
         };
         
     }

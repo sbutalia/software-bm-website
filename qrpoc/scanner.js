@@ -39,8 +39,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         requestAnimationFrame(tick);
     }
+
+    function loadLinkInWindow(data) {
+        // Construct the URL using the data from the QR code
+        console.log('@loadWindow -> Data from QR: ', data);
+        if(data && data != ''){
+            const newWindowv2 = window.open(data, '_blank');
+            setTimeout(function() {
+                newWindowv2.close();
+            }, 3100);
+        }
+    }
     
-    function showValidationFrame(data, showAgain) {
+    function showValidationFrame(data) {
         // Construct the URL using the data from the QR code
         console.log('Data from QR: ', data);
         if(data && data != ''){
@@ -48,12 +59,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const validationUrl = data;
             const newWindow = window.open(validationUrl, '_blank');
 
-            if(!showAgain){
-                const currentDate = new Date();
-                scans.unshift({ data: data, date: currentDate }); // Add to the front of the array
-                scans = scans.slice(0, 10); // Keep only the last 10
-                renderTable();
-            }
+            const currentDate = new Date();
+            scans.unshift({ data: data, date: currentDate }); // Add to the front of the array
+            scans = scans.slice(0, 10); // Keep only the last 10
+            renderTable();
 
 
             setTimeout(function() {
@@ -84,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
             a.textContent = scan.data;
             a.target = "_blank"; // Open in new tab
             a.onclick = function() {
-                showValidationFrame(scan.data, false); // Call validation frame function on click
+                loadLinkInWindow(scan.data); // Call validation frame function on click
                 return false; // Prevent default action
             };
             cell1.appendChild(a);

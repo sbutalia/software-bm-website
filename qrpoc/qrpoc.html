@@ -2,13 +2,28 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>QR Code Scanner v1.2</title>
+    <title>QR Code Scanner v1.3</title>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@latest/dist/jsQR.js"></script>
+    <link rel="stylesheet" href="scanner.css"/>
 </head>
 <body>
-    <video id="qr-video" hidden></video>
-    <canvas id="qr-canvas" hidden></canvas>
-    <iframe id="validation-frame" style="width:100%;height:80vh;" hidden></iframe>
+    <h2>QR Scanner v1.3</h2>
+    <div id="container">
+        <div id="video-container">
+            <video id="qr-video" hidden></video>
+            <canvas id="qr-canvas"></canvas>
+        </div>
+        <div id="scan-results">
+            <h3>Last 10 Scans</h3>
+            <table id="scans-table">
+                <tr>
+                    <th>Data</th>
+                    <th>Date</th>
+                </tr>
+                <!-- Scan entries will be dynamically inserted here -->
+            </table>
+        </div>
+    </div>
     <script src="scanner.js"></script>
 </body>
 </html>

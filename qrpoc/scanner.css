@@ -4,21 +4,28 @@ body, html {
     height: 100%;
     margin: 0;
     display: flex;
-    flex-direction: column;
-    font-family: 'Roboto', sans-serif; /* Apply the Roboto font */
-    background-color: #121212; /* Dark background for dark mode */
-    color: #fff; /* Light text for dark mode */
+    justify-content: center; /* Center children horizontally */
+    align-items: center; /* Center children vertically */
+    flex-direction: column; /* Stack children vertically */
+    font-family: 'Roboto', sans-serif;
+    background-color: #121212;
+    color: #fff;
 }
 #container {
     display: flex;
     flex-direction: row;
+    align-items: center; /* Center children horizontally */
+    justify-content: space-around; /* Space out children horizontally */
     height: calc(100% - 40px); /* Adjust the height to allow for the header */
     flex-wrap: wrap; /* Allow items to wrap onto the next line if needed */
+    
 }
 
 #video-container {
+    align-self: flex-start;
     width: 600px;
     height: 600px;
+    margin-top: 20px;
     margin-left: 10px;
     position: relative;
     box-shadow: 0 0 15px rgba(255,255,255,0.5); /* Glowing effect */
@@ -40,9 +47,10 @@ body, html {
 }
 
 #scan-results {
-    width: 50%;
+    align-self: flex-start;
+    width: 600px;
     height: 100%;
-    overflow-y: auto;
+    
     padding: 16px;
     box-sizing: border-box;
 }
@@ -70,6 +78,10 @@ th, td {
 
 th {
     background-color: #333; /* Even darker background for table headers */
+}
+
+.thDate{
+    width: 200px;
 }
 
 /* Styling links to be more noticeable */

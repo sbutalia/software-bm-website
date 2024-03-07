@@ -1,4 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
+    let isProcessingScan = false;
+    let lastScannedCode = null;
+    let lastScanTime = Date.now();
+    let scans = [];
+    const scanDelay = 2000; // Delay between scans in millisecond
+    const tickDelay = 30; // Delay between camera ticks in millisecond
+
     const video = document.getElementById('qr-video');
     const canvasElement = document.getElementById('qr-canvas');
     const canvas = canvasElement.getContext('2d', { willReadFrequently: true });
@@ -11,16 +18,19 @@ document.addEventListener('DOMContentLoaded', () => {
             video.srcObject = stream;
             video.setAttribute("playsinline", true); // required to tell iOS safari we don't want fullscreen
             video.play();
-            requestAnimationFrame(tick);
+            setTimeout(requestAnimationFrame, tickDelay, tick);
         });
 
-
-    let lastScannedCode = null;
-    let lastScanTime = Date.now();
-    const scanDelay = 2000; // Delay between scans in millisecond
     
     function tick() {
+        if (isProcessingScan) {
+            requestAnimationFrame(tick);
+            return;
+        }        
+        
         if (video.readyState === video.HAVE_ENOUGH_DATA) {
+            //DEBUG Log
+            //console.log(new Date(), ' at Tick');
             if (Date.now() - lastScanTime > scanDelay) {
                 canvasElement.hidden = false;
                 canvasElement.height = video.videoHeight;
@@ -33,23 +43,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (code && code.data !== lastScannedCode) {
                     console.log(lastScannedCode , code.data)
                     lastScannedCode = code.data;
+                    isProcessingScan = true; // Set the lock variable
+
                     lastScannedTime = Date.now(); // Update the last scanned time
-                    showValidationFrame(code.data);
+                    
+                    // Process the scan with some delay to debounce
+                    setTimeout(() => {
+                        showValidationFrame(code.data);
+                        isProcessingScan = false; // Release the lock after processing
+                    }, 500); // Adjust the timeout to control the debounce delay
+                    
                 }
             }
         }
-        requestAnimationFrame(tick);
-    }
-
-    function loadLinkInWindow(data) {
-        // Construct the URL using the data from the QR code
-        console.log('@loadWindow -> Data from QR: ', data);
-        if(data && data != ''){
-            const newWindowv2 = window.open(data, '_blank');
-            setTimeout(function() {
-                newWindowv2.close();
-            }, 3100);
-        }
+        setTimeout(requestAnimationFrame, tickDelay, tick);
     }
     
     function showValidationFrame(data) {
@@ -78,7 +85,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    let scans = [];
+    function loadLinkInWindow(validationUrlAgain) {
+        //console.log('@loadWindow -> Data from QR: ', data);
+        if(validationUrlAgain && validationUrlAgain != ''){
+            const newWindowv2 = window.open(validationUrlAgain, '_blank');
+            setTimeout(function() {
+                newWindowv2.close();
+            }, 3100);
+        }
+    }
+
+    
     function renderTable() {
         const table = document.getElementById('scans-table');
         // Clear all rows except the header
@@ -104,39 +121,5 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-
-    function validateQRCode(data) {
-        // Insert the correct parameters into the URL based on the scanned QR data
-        const validationUrl = `https://chs--partial.sandbox.my.site.com/QRValidator/validate?c__r=${encodeURIComponent(data.c__r)}&c__gs=${data.c__gs}&c__cs=${data.c__cs}&c__t=${data.c__t}`;
-    
-        // Make a fetch request to the validation URL
-        fetch(validationUrl)
-        .then(response => response.text()) // Assuming the response is plain text
-        .then(html => {
-            // Here you would need to parse the HTML to extract the relevant message.
-            // This is a simple placeholder example; actual implementation may vary.
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-            const message = doc.querySelector('body').innerText.trim();
-            displayValidationMessage(message);
-        })
-        .catch((error) => {
-            console.error('Error:', error);
-            displayValidationMessage("Failed to validate QR Code.");
-        });
-    }
-    
-    function displayValidationMessage(message) {
-        resultElement.textContent = message;
-        setTimeout(resetScanner, 10000); // Reset after 10 seconds
-    }
-    
-    function resetScanner() {
-        video.play();
-        resultElement.textContent = "Scan a QR Code";
-        // Make sure to clear any previous validation results if needed
-    }
-    
-    // Rest of your code to handle video streaming and QR code scanning...
     
 });

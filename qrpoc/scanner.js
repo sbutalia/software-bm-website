@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     // Process the scan with some delay to debounce
                     setTimeout(() => {
-                        showValidationFrame(code.data);
+                        handleQRCode(code.data);
                         isProcessingScan = false; // Release the lock after processing
                     }, 500); // Adjust the timeout to control the debounce delay
                     
@@ -61,6 +61,85 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(requestAnimationFrame, tickDelay, tick);
     }
     
+// Function to handle the QR code data and make an API call
+async function handleQRCode(data) {
+    console.log('Data from QR: ', data);
+    
+    if(data && data != ''){
+            beepSound.play();
+            video.pause(); // Pause the video feed
+            
+            const params = new URLSearchParams(data.slice(data.indexOf('?') + 1));
+            const resId = params.get('c__r');
+            const guestSpot = params.get('c__gs');
+            const checksum = params.get('c__cs');
+
+            console.log("params: ", params);
+
+            const url = 'https://paper-coffee-mouse.glitch.me/validate-qr';
+            const queryParams = {
+                language: 'en-US',
+                asGuest: 'true',
+                htmlEncode: 'false'
+            };
+
+            const payload = {
+                    "type": "ml",
+                    "resId": resId,
+                    "guestSpot": guestSpot,
+                    "checksum": checksum
+                };
+
+            try {
+                const response = await fetch(url + '?' + new URLSearchParams(queryParams), {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                        // Include additional headers if necessary, like authorization headers
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const responseData = await response.json();
+                // Process response and add status to the scans array
+                const status = responseData; // Adjust according to the actual response structure
+                addScan({ data: data, date: new Date(), status: status });
+
+                resetVideo();
+
+            } catch (error) {
+                console.error('Error during QR code validation:', error);
+                resetVideo();
+            }
+        }
+}
+
+function resetVideo(){
+    setTimeout(function() {
+        video.play();
+        // Allow new scans after the current one has been handled
+        lastScannedCode = null;
+    }, 3000);
+
+}
+
+// Function to add a new scan and render the table
+function addScan(scan) {
+    // Add the new scan to the start of the array
+    scans.push(scan);
+    // If the array exceeds 10 scans, remove the oldest
+    if (scans.length > 10) {
+        scans.pop();
+    }
+    // Render the table with the new scan data
+    renderTable();
+}
+
+
     function showValidationFrame(data) {
         // Construct the URL using the data from the QR code
         console.log('Data from QR: ', data);
@@ -112,16 +191,18 @@ document.addEventListener('DOMContentLoaded', () => {
         // Add new rows to the table
         for (const scan of scans) {
             let row = table.insertRow(1); // This ensures the newest scan is on top, below the header
-            let cellData = row.insertCell(0);
-            let cellDate = row.insertCell(1);
+            let cellResID = row.insertCell(0);
+            let cellStatus = row.insertCell(1);
+            let cellDate = row.insertCell(2);
+            let cellLink = row.insertCell(3);
             
             // Assuming 'scan' is an object with 'data' and 'date' properties
-            cellData.innerHTML = `<a href="${scan.data}" target="_blank">${scan.data}</a>`;
+            cellResID.textContent = scan.status.returnValue.parametersSent.resId;
+            cellStatus.innerHTML = scan.status.returnValue.messageToDisplay;
             cellDate.textContent = scan.date.toLocaleString();
+            cellLink.innerHTML = `<a href="${scan.data}" target="_blank"> Open </a>`;
         };
         
     }
-    
-
     
 });

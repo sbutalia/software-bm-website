@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 
+
 body, html {
     height: 100%;
     margin: 0;
@@ -11,6 +12,8 @@ body, html {
     background-color: #121212;
     color: #fff;
 }
+
+
 #container {
     display: flex;
     flex-direction: row;
@@ -86,7 +89,7 @@ th {
 
 /* Styling links to be more noticeable */
 a {
-    color: #4CAF50; /* Green color for links */
+    color: #3946bf; /* Green color for links */
     text-decoration: none; /* No underline */
 }
 

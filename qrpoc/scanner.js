@@ -59,10 +59,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     // Process the scan with some delay to debounce
                     setTimeout(() => {
-                        
                         handleQRCode(code.data);
                         isProcessingScan = false; // Release the lock after processing
-                    }, 500); // Adjust the timeout to control the debounce delay
+                    }, 1500); // Adjust the timeout to control the debounce delay
                     
                 }
             }
@@ -134,7 +133,7 @@ function resetVideo(){
         video.play();
         // Allow new scans after the current one has been handled
         lastScannedCode = null;
-    }, 500);
+    }, 2000);
 
 }
 

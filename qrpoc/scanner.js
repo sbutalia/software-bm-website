@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     isProcessingScan = true; // Set the lock variable
                     lastScannedTime = Date.now(); // Update the last scanned time
                     
-                    pauseCanvas();
+                    
 
                     // Process the scan with some delay to debounce
                     setTimeout(() => {
@@ -103,6 +103,7 @@ async function handleQRCode(data) {
     console.log('Data from QR: ', data);
     
     if(data && data != ''){
+            pauseCanvas();
             const params = new URLSearchParams(data.slice(data.indexOf('?') + 1));
             const resId = params.get('c__r');
             const guestSpot = params.get('c__gs');

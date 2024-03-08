@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
             isProcessingScan = false; // Release the lock after processing
             // Allow new scans after the current one has been handled
             lastScannedCode = null;
-        }, 2500);
+        }, 2000);
     }
 
 
@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Process the scan with some delay to debounce
                     setTimeout(() => {
                         handleQRCode(code.data);   
-                    }, 1500); // Adjust the timeout to control the debounce delay
+                    }, 1000); // Adjust the timeout to control the debounce delay
                     
                 }
             }

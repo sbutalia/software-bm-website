@@ -3,6 +3,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let lastScannedCode = null;
     let lastScanTime = Date.now();
     let scans = [];
+    const BACKEND_URL = 'https://paper-coffee-mouse.glitch.me';
+
     const scanDelay = 2000; // Delay between scans in millisecond
     const tickDelay = 30; // Delay between camera ticks in millisecond
 
@@ -30,8 +32,32 @@ document.addEventListener('DOMContentLoaded', () => {
     function hideLoader() {
         document.getElementById('loader').style.display = 'none';
     }
-      
- 
+
+    function clearCanvas(canvas, context) {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+    }    
+    
+    function pauseCanvas(){
+        beepSound.play();
+        showLoader();
+        
+        canvasElement.style.visibility = 'hidden'; // Make the video element visible again
+        //video.pause(); // Pause the video feed
+        clearCanvas(canvasElement, canvas);
+    }
+    
+    function resetCanvas(){
+        setTimeout(function() {
+            hideLoader();
+            canvasElement.style.visibility = 'visible'; // Make the video element visible again
+            isProcessingScan = false; // Release the lock after processing
+            // Allow new scans after the current one has been handled
+            lastScannedCode = null;
+        }, 2500);
+    }
+
+
+
     function tick() {
         if (isProcessingScan) {
             requestAnimationFrame(tick);
@@ -45,22 +71,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 canvasElement.hidden = false;
                 canvasElement.height = video.videoHeight;
                 canvasElement.width = video.videoWidth;
+
                 canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
                 var imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
+                
                 var code = jsQR(imageData.data, imageData.width, imageData.height, {
                     inversionAttempts: "dontInvert",
                 });
+                
                 if (code && code.data !== lastScannedCode) {
                     console.log(lastScannedCode , code.data)
                     lastScannedCode = code.data;
                     isProcessingScan = true; // Set the lock variable
-
                     lastScannedTime = Date.now(); // Update the last scanned time
                     
+                    pauseCanvas();
+
                     // Process the scan with some delay to debounce
                     setTimeout(() => {
-                        handleQRCode(code.data);
-                        isProcessingScan = false; // Release the lock after processing
+                        handleQRCode(code.data);   
                     }, 1500); // Adjust the timeout to control the debounce delay
                     
                 }
@@ -74,18 +103,14 @@ async function handleQRCode(data) {
     console.log('Data from QR: ', data);
     
     if(data && data != ''){
-            beepSound.play();
-            video.pause(); // Pause the video feed
-            
             const params = new URLSearchParams(data.slice(data.indexOf('?') + 1));
             const resId = params.get('c__r');
             const guestSpot = params.get('c__gs');
             const checksum = params.get('c__cs');
 
-            console.log("params: ", params);
+            //console.log("params: ", params);
 
-            showLoader();
-            const url = 'https://paper-coffee-mouse.glitch.me/validate-qr';
+            
             const queryParams = {
                 language: 'en-US',
                 asGuest: 'true',
@@ -100,11 +125,10 @@ async function handleQRCode(data) {
                 };
 
             try {
-                const response = await fetch(url + '?' + new URLSearchParams(queryParams), {
+                const response = await fetch(BACKEND_URL + '/validate-qr' + '?' + new URLSearchParams(queryParams), {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
-                        // Include additional headers if necessary, like authorization headers
                     },
                     body: JSON.stringify(payload)
                 });
@@ -114,28 +138,19 @@ async function handleQRCode(data) {
                 }
 
                 const responseData = await response.json();
-                // Process response and add status to the scans array
-                const status = responseData; // Adjust according to the actual response structure
+                const status = responseData;
                 addScan({ data: data, date: new Date(), status: status });
 
-                resetVideo();
+                resetCanvas();
 
             } catch (error) {
                 console.error('Error during QR code validation:', error);
-                resetVideo();
+                resetCanvas();
             }
         }
 }
 
-function resetVideo(){
-    setTimeout(function() {
-        hideLoader();
-        video.play();
-        // Allow new scans after the current one has been handled
-        lastScannedCode = null;
-    }, 2000);
 
-}
 
 // Function to add a new scan and render the table
 function addScan(scan) {
@@ -222,5 +237,26 @@ function addScan(scan) {
         };
         
     }
+
+
+        // Function to call the "keepUP" endpoint
+        function callKeepUpAPI() {
+            fetch(BACKEND_URL + '/hello')
+            .then(response => {
+                if (!response.ok) {
+                throw new Error('Network response was not ok');
+                }
+                return response.text();
+            })
+            .then(text => console.log('KeepUP API called successfully:', text))
+            .catch(error => console.error('Error when calling KeepUP API:', error));
+        }
+        
+        // Call the "keepUP" API every 4 minutes
+        const fourMinutes = 4 * 60 * 1000; // 4 minutes in milliseconds
+        setInterval(callKeepUpAPI, fourMinutes);
+
     
 });
+
+  

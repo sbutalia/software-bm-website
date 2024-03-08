@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (video.readyState === video.HAVE_ENOUGH_DATA) {
             //DEBUG Log
             //console.log(new Date(), ' at Tick');
-            if (Date.now() - lastScanTime > scanDelay) {
+
                 canvasElement.hidden = false;
                 canvasElement.height = video.videoHeight;
                 canvasElement.width = video.videoWidth;
@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.log(lastScannedCode , code.data)
                     lastScannedCode = code.data;
                     isProcessingScan = true; // Set the lock variable
-                    lastScannedTime = Date.now(); // Update the last scanned time
+                    lastScanTime = Date.now(); // Update the last scanned time
                     
                     // Process the scan with some delay to debounce
                     setTimeout(() => {
@@ -91,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }, 2000); // Adjust the timeout to control the debounce delay
                     
                 }
-            }
+            
         }
         setTimeout(requestAnimationFrame, tickDelay, tick);
     }

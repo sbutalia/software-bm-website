@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const BACKEND_URL = 'https://paper-coffee-mouse.glitch.me';
 
     const scanDelay = 2000; // Delay between scans in millisecond
-    const tickDelay = 30; // Delay between camera ticks in millisecond
+    const tickDelay = 60; // Delay between camera ticks in millisecond
 
     const beepSound = document.getElementById('beep-sound');
     
@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Process the scan with some delay to debounce
                     setTimeout(() => {
                         handleQRCode(code.data);   
-                    }, 1000); // Adjust the timeout to control the debounce delay
+                    }, 2000); // Adjust the timeout to control the debounce delay
                     
                 }
             }

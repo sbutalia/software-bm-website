@@ -85,8 +85,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     isProcessingScan = true; // Set the lock variable
                     lastScannedTime = Date.now(); // Update the last scanned time
                     
-                    
-
                     // Process the scan with some delay to debounce
                     setTimeout(() => {
                         handleQRCode(code.data);   
@@ -149,6 +147,9 @@ async function handleQRCode(data) {
                 resetCanvas();
             }
         }
+        else{
+            resetCanvas();
+        }
 }
 
 
@@ -170,7 +171,7 @@ function addScan(scan) {
         // Construct the URL using the data from the QR code
         console.log('Data from QR: ', data);
         if(data && data != ''){
-            video.pause(); // Pause the video feed
+            //video.pause(); // Pause the video feed
             const validationUrl = data;
             beepSound.play();
             const newWindow = window.open(validationUrl, '_blank');
@@ -242,20 +243,19 @@ function addScan(scan) {
 
         // Function to call the "keepUP" endpoint
         function callKeepUpAPI() {
+            video.pause();
+            video.play();
+            
             fetch(BACKEND_URL + '/hello')
             .then(response => {
-                if (!response.ok) {
-                throw new Error('Network response was not ok');
-                }
-                return response.text();
+                console.log(response);
             })
-            .then(text => console.log('KeepUP API called successfully:', text))
             .catch(error => console.error('Error when calling KeepUP API:', error));
         }
         
         // Call the "keepUP" API every 4 minutes
-        const fourMinutes = 4 * 60 * 1000; // 4 minutes in milliseconds
-        setInterval(callKeepUpAPI, fourMinutes);
+        //const fourMinutes = 1 * 60 * 1000; // 4 minutes in milliseconds
+        //setInterval(callKeepUpAPI, fourMinutes);
 
     
 });

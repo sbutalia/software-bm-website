@@ -134,7 +134,7 @@ function resetVideo(){
         video.play();
         // Allow new scans after the current one has been handled
         lastScannedCode = null;
-    }, 3000);
+    }, 500);
 
 }
 
@@ -144,7 +144,7 @@ function addScan(scan) {
     scans.push(scan);
     // If the array exceeds 10 scans, remove the oldest
     if (scans.length > 10) {
-        scans.pop();
+        scans.shift();
     }
     // Render the table with the new scan data
     renderTable();

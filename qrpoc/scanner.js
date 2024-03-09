@@ -15,7 +15,41 @@ document.addEventListener('DOMContentLoaded', () => {
     const canvas = canvasElement.getContext('2d', { willReadFrequently: true });
     const resultElement = document.getElementById('result');
     const validationFrame = document.getElementById('validation-frame');
+    var myInfo = {
+        ip: null,
+        lat: null,
+        long: null
+    }
 
+    //On load get this info
+    fetch('https://api.ipify.org?format=json')
+    .then(response => response.json())
+    .then(data => {
+        console.log('Your IP address is:', data.ip);
+        myInfo.ip = data.ip;
+        // Now you can send this IP address back to your server if needed.
+    })
+    .catch(error => {
+        console.error('Error fetching the IP address:', error);
+    });
+
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            console.log(`Latitude: ${latitude}, Longitude: ${longitude}`);
+            // Now you can send this location back to your server if needed.
+            myInfo.lat = latitude;
+            myInfo.long = longitude;
+          },
+          (error) => {
+            console.error('Geolocation API error:', error);
+          },
+          { enableHighAccuracy: true } // Requests the best possible results.
+        );
+      }
+      
+    
     // Use the MediaDevices API to access the camera
     navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
         .then(function(stream) {
@@ -120,7 +154,8 @@ async function handleQRCode(data) {
                     "type": "ml",
                     "resId": resId,
                     "guestSpot": guestSpot,
-                    "checksum": checksum
+                    "checksum": checksum,
+                    "myinfo": myInfo
                 };
 
             try {

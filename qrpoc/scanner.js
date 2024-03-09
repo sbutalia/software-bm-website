@@ -18,7 +18,14 @@ document.addEventListener('DOMContentLoaded', () => {
     var myInfo = {
         ip: null,
         lat: null,
-        long: null
+        long: null,
+        browserType: navigator.userAgent,
+        timestamp: new Date().toISOString(),
+        screenResolution: `${window.screen.width}x${window.screen.height}`,
+        operatingSystem: navigator.platform,
+        browserVersion: navigator.appVersion,
+        deviceType: /Mobi|Android/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop',
+        referrerURL: document.referrer || 'None'
     }
 
     //On load get this info
@@ -47,8 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
           },
           { enableHighAccuracy: true } // Requests the best possible results.
         );
-      }
-      
+    }
     
     // Use the MediaDevices API to access the camera
     navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
@@ -90,8 +96,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 2000);
     }
 
-
-
     function tick() {
         if (isProcessingScan) {
             requestAnimationFrame(tick);
@@ -129,78 +133,77 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         setTimeout(requestAnimationFrame, tickDelay, tick);
     }
-    
-// Function to handle the QR code data and make an API call
-async function handleQRCode(data) {
-    console.log('Data from QR: ', data);
-    
-    if(data && data != ''){
-            pauseCanvas();
-            const params = new URLSearchParams(data.slice(data.indexOf('?') + 1));
-            const resId = params.get('c__r');
-            const guestSpot = params.get('c__gs');
-            const checksum = params.get('c__cs');
+        
+    // Function to handle the QR code data and make an API call
+    async function handleQRCode(data) {
+        console.log('Data from QR: ', data);
+        
+        if(data && data != ''){
+                pauseCanvas();
+                const params = new URLSearchParams(data.slice(data.indexOf('?') + 1));
+                const resId = params.get('c__r');
+                const guestSpot = params.get('c__gs');
+                const checksum = params.get('c__cs');
 
-            //console.log("params: ", params);
+                //console.log("params: ", params);
 
-            
-            const queryParams = {
-                language: 'en-US',
-                asGuest: 'true',
-                htmlEncode: 'false'
-            };
-
-            const payload = {
-                    "type": "ml",
-                    "resId": resId,
-                    "guestSpot": guestSpot,
-                    "checksum": checksum,
-                    "myinfo": myInfo
+                
+                const queryParams = {
+                    language: 'en-US',
+                    asGuest: 'true',
+                    htmlEncode: 'false'
                 };
 
-            try {
-                const response = await fetch(BACKEND_URL + '/validate-qr' + '?' + new URLSearchParams(queryParams), {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
-                });
+                const payload = {
+                        "type": "ml",
+                        "resId": resId,
+                        "guestSpot": guestSpot,
+                        "checksum": checksum,
+                        "myinfo": myInfo
+                    };
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                try {
+                    const response = await fetch(BACKEND_URL + '/validate-qr' + '?' + new URLSearchParams(queryParams), {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const responseData = await response.json();
+                    const status = responseData;
+                    addScan({ data: data, date: new Date(), status: status });
+
+                    resetCanvas();
+
+                } catch (error) {
+                    console.error('Error during QR code validation:', error);
+                    resetCanvas();
                 }
-
-                const responseData = await response.json();
-                const status = responseData;
-                addScan({ data: data, date: new Date(), status: status });
-
-                resetCanvas();
-
-            } catch (error) {
-                console.error('Error during QR code validation:', error);
+            }
+            else{
                 resetCanvas();
             }
-        }
-        else{
-            resetCanvas();
-        }
-}
-
-
-
-// Function to add a new scan and render the table
-function addScan(scan) {
-    // Add the new scan to the start of the array
-    scans.push(scan);
-    // If the array exceeds 10 scans, remove the oldest
-    if (scans.length > 10) {
-        scans.shift();
     }
-    // Render the table with the new scan data
-    renderTable();
-}
 
+
+
+    // Function to add a new scan and render the table
+    function addScan(scan) {
+        // Add the new scan to the start of the array
+        scans.push(scan);
+        // If the array exceeds 10 scans, remove the oldest
+        if (scans.length > 10) {
+            scans.shift();
+        }
+        // Render the table with the new scan data
+        renderTable();
+    }
 
     function showValidationFrame(data) {
         // Construct the URL using the data from the QR code
@@ -238,7 +241,6 @@ function addScan(scan) {
             }, 3100);
         }
     }
-
     
     function renderTable() {
         console.log('@renderTable', scans);
@@ -275,24 +277,6 @@ function addScan(scan) {
         
     }
 
-
-        // Function to call the "keepUP" endpoint
-        function callKeepUpAPI() {
-            video.pause();
-            video.play();
-            
-            fetch(BACKEND_URL + '/hello')
-            .then(response => {
-                console.log(response);
-            })
-            .catch(error => console.error('Error when calling KeepUP API:', error));
-        }
-        
-        // Call the "keepUP" API every 4 minutes
-        //const fourMinutes = 1 * 60 * 1000; // 4 minutes in milliseconds
-        //setInterval(callKeepUpAPI, fourMinutes);
-
-    
 });
 
   

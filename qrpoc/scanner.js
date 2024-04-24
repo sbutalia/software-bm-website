@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let lastScanTime = Date.now();
     let scans = [];
     const BACKEND_URL = 'https://paper-coffee-mouse.glitch.me';
-
+//https://corphosp.my.site.com/QRValidator/webruntime/api/apex/execute?language=en-US&asGuest=true&htmlEncode=false
     const scanDelay = 2000; // Delay between scans in millisecond
     const tickDelay = 60; // Delay between camera ticks in millisecond
 
@@ -144,6 +144,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const resId = params.get('c__r');
                 const guestSpot = params.get('c__gs');
                 const checksum = params.get('c__cs');
+                const facilityId = params.get('c__fid');
+                
 
                 //console.log("params: ", params);
 
@@ -159,6 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         "resId": resId,
                         "guestSpot": guestSpot,
                         "checksum": checksum,
+                        "facilityId": facilityId,
                         "myinfo": myInfo
                     };
 

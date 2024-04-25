@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let scans = [];
     const BACKEND_URL = 'https://paper-coffee-mouse.glitch.me';
 //https://corphosp.my.site.com/QRValidator/webruntime/api/apex/execute?language=en-US&asGuest=true&htmlEncode=false
-    const scanDelay = 2000; // Delay between scans in millisecond
+    const scanDelay = 800; // Delay between scans in millisecond
     const tickDelay = 60; // Delay between camera ticks in millisecond
 
     const beepSound = document.getElementById('beep-sound');
@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
             isProcessingScan = false; // Release the lock after processing
             // Allow new scans after the current one has been handled
             lastScannedCode = null;
-        }, 2000);
+        }, 800);
     }
 
     function tick() {
@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Process the scan with some delay to debounce
                     setTimeout(() => {
                         handleQRCode(code.data);   
-                    }, 2000); // Adjust the timeout to control the debounce delay
+                    }, 700); // Adjust the timeout to control the debounce delay
                     
                 }
             

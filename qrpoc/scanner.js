@@ -271,7 +271,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
             // Check the status message and apply color accordingly
-            if (scan.status.returnValue.messageToDisplay.includes("expired")) {
+            if (scan.status.returnValue.errorText) {
                 cellStatus.classList.add('status-expired');
             } else {
                 cellStatus.classList.add('status-ok');

@@ -3,8 +3,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let lastScannedCode = null;
     let lastScanTime = Date.now();
     let scans = [];
+
+    //Prod
     const BACKEND_URL = 'https://paper-coffee-mouse.glitch.me';
-//https://corphosp.my.site.com/QRValidator/webruntime/api/apex/execute?language=en-US&asGuest=true&htmlEncode=false
+
+    //Dev
+    //const BACKEND_URL = 'https://bitter-witty-saturnalia.glitch.me/';
+
     const scanDelay = 800; // Delay between scans in millisecond
     const tickDelay = 60; // Delay between camera ticks in millisecond
 
@@ -141,29 +146,39 @@ document.addEventListener('DOMContentLoaded', () => {
         if(data && data != ''){
                 pauseCanvas();
                 const params = new URLSearchParams(data.slice(data.indexOf('?') + 1));
+                console.log("qr params: ", params);
+                
                 const resId = params.get('c__r');
                 const guestSpot = params.get('c__gs');
                 const checksum = params.get('c__cs');
                 const facilityId = params.get('c__fid');
                 
+                const type = params.get('c__t'); // Added to handle different types
+                const productCode = params.get('c__pcd'); // Only used for type 'p'
+              
 
-                //console.log("params: ", params);
+                let payload = {
+                    "type": type,
+                    "facilityId": facilityId,
+                    "myinfo": myInfo
+                };
 
-                
+                // Add parameters based on type
+                if (type === 'ml' || type === 'mlm') {
+                    payload.resId = resId;
+                    payload.guestSpot = guestSpot;
+                    payload.checksum = checksum;
+                } else if (type === 'p') {
+                    payload.productCode = productCode;
+                }
+
+                console.log("payload: ", payload);
+
                 const queryParams = {
                     language: 'en-US',
                     asGuest: 'true',
                     htmlEncode: 'false'
                 };
-
-                const payload = {
-                        "type": "ml",
-                        "resId": resId,
-                        "guestSpot": guestSpot,
-                        "checksum": checksum,
-                        "facilityId": facilityId,
-                        "myinfo": myInfo
-                    };
 
                 try {
                     const response = await fetch(BACKEND_URL + '/validate-qr' + '?' + new URLSearchParams(queryParams), {
@@ -271,7 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
             // Check the status message and apply color accordingly
-            if (scan.status.returnValue.errorText) {
+            if (scan.status.returnValue.messageToDisplay.includes("expired")) {
                 cellStatus.classList.add('status-expired');
             } else {
                 cellStatus.classList.add('status-ok');

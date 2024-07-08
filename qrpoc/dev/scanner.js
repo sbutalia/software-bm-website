@@ -138,13 +138,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         setTimeout(requestAnimationFrame, tickDelay, tick);
     }
-        
+
+       
     // Function to handle the QR code data and make an API call
-    async function handleQRCode(data) {
+    async function handleQRCode(data, upCellElem) {
         console.log('Data from QR: ', data);
         
         if(data && data != ''){
-                pauseCanvas();
+               
                 const params = new URLSearchParams(data.slice(data.indexOf('?') + 1));
                 console.log("qr params: ", params);
                 
@@ -152,10 +153,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 const guestSpot = params.get('c__gs');
                 const checksum = params.get('c__cs');
                 const facilityId = params.get('c__fid');
+                const upgrade = params.get('up');
                 
                 const type = params.get('c__t'); // Added to handle different types
                 const productCode = params.get('c__pcd'); // Only used for type 'p'
-              
+
+                if(!upgrade){
+                    pauseCanvas();
+                }
 
                 let payload = {
                     "type": type,
@@ -171,6 +176,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (type === 'p') {
                     payload.productCode = productCode;
                 }
+
+                if(upgrade)
+                    payload.up = upgrade;
 
                 console.log("payload: ", payload);
 
@@ -195,9 +203,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     const responseData = await response.json();
                     const status = responseData;
-                    addScan({ data: data, date: new Date(), status: status });
 
-                    resetCanvas();
+                    console.log(responseData)
+
+                    if(!upgrade){
+                        addScan({ data: data, date: new Date(), status: status });
+                        resetCanvas();
+                    }
+                    else{
+                        upCellElem.innerHTML = `<span class="c-green">Upgraded to Sandwich!</span>`;
+                    }
 
                 } catch (error) {
                     console.error('Error during QR code validation:', error);
@@ -277,6 +292,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let cellStatus = row.insertCell(1);
             let cellDate = row.insertCell(2);
             let cellLink = row.insertCell(3);
+            let cellActions = row.insertCell(4);
             
             // Assuming 'scan' is an object with 'data' and 'date' properties
             cellResID.textContent = scan.status.returnValue.parametersSent.resId;
@@ -284,13 +300,51 @@ document.addEventListener('DOMContentLoaded', () => {
             cellDate.textContent = scan.date.toLocaleString();
             cellLink.innerHTML = `<a href="${scan.data}" target="_blank"> Open </a>`;
 
+            
+            let actionsButton = document.createElement('button');
+            actionsButton.innerHTML = '⋯';
+            actionsButton.className = 'three-dots'; // Add a class to the button
+            cellActions.appendChild(actionsButton);
+            
+            let optionsList = document.createElement('ul');
+            optionsList.className = 'options-menu'; // Add a class to the menu
+            optionsList.style.display = 'none'; // Hide the menu by default
+            cellActions.appendChild(optionsList);
+            
+            let options = ['Upgrade to Sandwich']; // Add more options here
+            options.forEach(option => {
+              let optionElement = document.createElement('li');
+              optionElement.textContent = option;
+              optionsList.appendChild(optionElement);
+              optionElement.addEventListener('click', event => {
+                // Handle option click here
+                console.log(`Option clicked: ${option}`);
+
+                cellActions.innerHTML = `Processing Request...`;
+
+                scan.data += `&up=1`;
+                handleQRCode(scan.data, cellActions);
+
+                optionsList.style.display = 'none';
+                actionsButton.style.display = 'none';
+              });
+            });
+            
+            actionsButton.addEventListener('click', event => {
+              // Toggle the menu visibility
+              optionsList.style.display = optionsList.style.display === 'none' ? 'block' : 'none';
+            });
+            
+
 
             // Check the status message and apply color accordingly
             if (scan.status.returnValue.messageToDisplay.includes("expired")) {
                 cellStatus.classList.add('status-expired');
             } else {
                 cellStatus.classList.add('status-ok');
-            }            
+            } 
+            
+            
         };
         
     }

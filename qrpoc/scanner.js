@@ -5,10 +5,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let scans = [];
 
     //Prod
-    const BACKEND_URL = 'https://paper-coffee-mouse.glitch.me';
+    //const BACKEND_URL = 'https://paper-coffee-mouse.glitch.me';
 
     //Dev
-    //const BACKEND_URL = 'https://bitter-witty-saturnalia.glitch.me/';
+    const BACKEND_URL = 'https://bitter-witty-saturnalia.glitch.me/';
 
     const scanDelay = 800; // Delay between scans in millisecond
     const tickDelay = 60; // Delay between camera ticks in millisecond

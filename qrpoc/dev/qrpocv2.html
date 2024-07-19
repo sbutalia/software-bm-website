@@ -4,39 +4,42 @@
     <meta charset="UTF-8">
     <title>QR Code Scanner v1.21</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jsqr@latest/dist/jsQR.js"></script>
-    <link rel="stylesheet" href="scanner.css"/>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        #redirect-button {
+            font-size: 24px;
+            padding: 20px;
+            margin: 20px;
+            display: block;
+        }
+        #manual-link {
+            font-size: 24px;
+            margin-top: 10px;
+            text-decoration: none;
+            color: #007bff;
+        }
+        #manual-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+    <script>
+        $(document).ready(function() {
+            setTimeout(function() {
+                window.location.href = 'https://corp-hosp-meal-scanner-2.glitch.me/scan';
+            }, 5000);
+        });
+    </script>
 </head>
 <body>
-    <h2>QR Scanner v1.21 - DEV</h2>
-    <div id="sleeping-indicator" class="modal" style="display: none;">
-        <img src="sleepcat2.gif" alt="Sleeping" />
-        <p>Resting due to inactivity. Click anywhere to wakeup.</p>
-    </div>
-
-    <div id="container"> 
-
-
-        <div id="video-container">
-            <div id="loader" class="loader"></div>
-            <video id="qr-video" hidden></video>
-            <canvas id="qr-canvas"></canvas>
-        </div>
-        <div id="scan-results">
-            <h3>Recent Scans</h3>
-            <table id="scans-table">
-                <tr>
-                    <th>ResId</th>
-                    <th>Status</th>
-                    <th>Date</th>
-                    <th>Link</th>
-                    <th>Actions</th>
-                </tr>
-                <!-- Scan entries will be dynamically inserted here -->
-            </table>
-        </div>
-    </div>
-    <audio id="beep-sound" src="bell.mp3" preload="auto"></audio>
-    <script src="scanner.js"></script>
+    <button id="redirect-button">Redirecting in 5 seconds...</button>
+    <a id="manual-link" href="https://corp-hosp-meal-scanner-2.glitch.me/scan">Click here if you are not redirected automatically</a>
 </body>
 </html>

@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Allow: /landing2025/
+Disallow: /clientPages/
+Disallow: /_archive/
+
+Sitemap: https://butaliamedia.com/sitemap.xml

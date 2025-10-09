@@ -16,6 +16,12 @@
   
   <!-- Portfolio Detail Pages -->
   <url>
+    <loc>https://butaliamedia.com/pd-7.html</loc>
+    <lastmod>2025-10-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
     <loc>https://butaliamedia.com/pd-1.html</loc>
     <lastmod>2025-10-08</lastmod>
     <changefreq>monthly</changefreq>

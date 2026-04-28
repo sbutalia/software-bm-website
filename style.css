@@ -190,6 +190,10 @@ a {
     transition: color var(--transition-base);
 }
 
+.nav-links a.btn-primary {
+    color: white;
+}
+
 .nav-links a:not(.btn-primary):hover {
     color: var(--primary-color);
 }

@@ -994,8 +994,15 @@ section {
 }
 
 .contact-info > p {
-    margin-bottom: var(--spacing-xl);
+    margin-bottom: var(--spacing-lg);
     font-size: 1.125rem;
+}
+
+.contact-form-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: var(--spacing-xl);
 }
 
 .contact-details {

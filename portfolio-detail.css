@@ -232,6 +232,22 @@
     line-height: 1.7;
 }
 
+/* Testimonial Highlight */
+.testimonial-highlight {
+    margin: var(--spacing-2xl) 0;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    background: #F0FDFA;
+    padding: var(--spacing-lg);
+    border-left: 4px solid var(--primary-color);
+}
+
+.testimonial-highlight img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
 /* Project Navigation */
 .project-navigation {
     padding: var(--spacing-2xl) 0;

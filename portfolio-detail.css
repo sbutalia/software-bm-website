@@ -56,6 +56,38 @@
     color: var(--text-secondary);
 }
 
+/* Split Hero Layout (image as right column) */
+.project-hero--split {
+    padding-bottom: var(--spacing-2xl);
+}
+
+.project-header--split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: var(--spacing-2xl);
+    max-width: none;
+}
+
+.project-hero-image {
+    border-radius: var(--radius-2xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-xl);
+}
+
+.project-hero-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+@media (max-width: 1024px) {
+    .project-header--split {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-xl);
+    }
+}
+
 /* Project Image Section */
 .project-image-section {
     padding: var(--spacing-2xl) 0;

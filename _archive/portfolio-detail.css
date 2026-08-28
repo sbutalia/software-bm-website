@@ -4,10 +4,8 @@
 
 /* Project Hero Section */
 .project-hero {
-    margin: 72px var(--spacing-sm) 0;
-    border-radius: 32px;
-    padding: var(--spacing-2xl) 0;
-    background: var(--bg-canvas);
+    padding: calc(80px + var(--spacing-2xl)) 0 var(--spacing-xl);
+    background: linear-gradient(135deg, #F9FAFB 0%, #FFFFFF 50%, #F0F9F8 100%);
 }
 
 .breadcrumb {
@@ -38,8 +36,7 @@
 .project-tag {
     display: inline-block;
     padding: var(--spacing-xs) var(--spacing-md);
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
+    background: linear-gradient(135deg, rgba(13, 148, 136, 0.1), rgba(124, 58, 237, 0.1));
     border-radius: var(--radius-xl);
     color: var(--primary-dark);
     font-weight: 600;
@@ -155,8 +152,7 @@
 .info-icon {
     width: 40px;
     height: 40px;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
+    background: linear-gradient(135deg, rgba(13, 148, 136, 0.1), rgba(124, 58, 237, 0.1));
     border-radius: var(--radius-md);
     display: flex;
     align-items: center;
@@ -242,7 +238,7 @@
     margin: var(--spacing-2xl) 0;
     border-radius: var(--radius-xl);
     overflow: hidden;
-    background: var(--bg-secondary);
+    background: #F0F9F8;
     padding: var(--spacing-lg);
     border-left: 4px solid var(--primary-color);
     text-decoration: none;
@@ -250,7 +246,7 @@
 }
 
 .testimonial-highlight:hover {
-    background: var(--bg-tertiary);
+    background: #E0F5F3;
 }
 
 .testimonial-highlight img {
@@ -354,16 +350,5 @@
     
     .project-description h3 {
         font-size: 1.25rem;
-    }
-}
-
-
-/* ===================================
-   v3: project hero panel on smaller screens
-   =================================== */
-@media (max-width: 768px) {
-    .project-hero {
-        margin: 64px 0.5rem 0;
-        border-radius: 20px;
     }
 }

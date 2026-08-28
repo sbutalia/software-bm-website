@@ -169,7 +169,7 @@ const revealGroup = (selector) => {
     });
 };
 
-revealGroup('.lifecycle-step');
+revealGroup('.service-card');
 revealGroup('.expertise-card');
 revealGroup('.portfolio-item');
 revealGroup('.team-member');
@@ -215,6 +215,34 @@ document.querySelectorAll('.stat').forEach(stat => {
 });
 
 // ===================================
+// Floating Cards — scroll-linked drift
+// ===================================
+// The cursor-follow parallax has been removed. Motion here responds to scroll
+// position only, which is what reads as "modern" on sites like Calendly, and it
+// runs inside a rAF so it never fires layout work on every scroll event.
+const floatingCards = document.querySelectorAll('.floating-card');
+
+if (floatingCards.length && !prefersReducedMotion) {
+    let ticking = false;
+
+    const driftCards = () => {
+        const y = window.scrollY;
+        floatingCards.forEach((card, index) => {
+            const depth = (index + 1) * 0.035;
+            card.style.transform = `translateY(${-y * depth}px)`;
+        });
+        ticking = false;
+    };
+
+    window.addEventListener('scroll', () => {
+        if (!ticking) {
+            requestAnimationFrame(driftCards);
+            ticking = true;
+        }
+    }, { passive: true });
+}
+
+// ===================================
 // Prevent FOUC (Flash of Unstyled Content)
 // ===================================
 window.addEventListener('load', () => {
@@ -253,150 +281,3 @@ if ('loading' in HTMLImageElement.prototype) {
 console.log('%c🚀 Butalia Media Consulting', 'font-size: 20px; font-weight: bold; color: #2DD4BF;');
 console.log('%cBuilt with modern web technologies', 'font-size: 14px; color: #6B7280;');
 console.log('%cInterested in working with us? Visit: https://butaliamedia.com', 'font-size: 12px; color: #9CA3AF;');
-
-// ===================================
-// Contact form
-// ===================================
-// Drop your endpoint URL in here when it's ready. It should accept a POST with
-// a JSON body and reply 2xx on success. While this is empty the form stays in
-// fallback mode and hands people to the Google Form, so no enquiry is lost.
-const CONTACT_ENDPOINT = '';
-const CONTACT_FALLBACK_URL = 'https://forms.gle/pnxTFrbDFSVFo7Jk6';
-
-(() => {
-    const form = document.getElementById('contact-form');
-    if (!form) return;
-
-    const submitBtn = document.getElementById('cf-submit');
-    const statusEl  = document.getElementById('cf-status');
-
-    const RULES = {
-        name:    { el: form.name,    err: 'cf-name-err',    msg: 'Please tell us your name.' },
-        email:   { el: form.email,   err: 'cf-email-err',   msg: 'Please enter a valid email address.' },
-        message: { el: form.message, err: 'cf-message-err', msg: 'A sentence or two is plenty.' },
-    };
-
-    const emailOk = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
-
-    const fieldValid = (key) => {
-        const v = RULES[key].el.value.trim();
-        return key === 'email' ? emailOk(v) : v.length > 0;
-    };
-
-    const needChosen = () => !!form.querySelector('input[name="need"]:checked');
-
-    const formValid = () =>
-        Object.keys(RULES).every(fieldValid) && needChosen();
-
-    // Show an error only after the user has left the field once, so we're not
-    // scolding them mid-typing.
-    const touched = new Set();
-
-    const paint = (key) => {
-        const { el, err, msg } = RULES[key];
-        const wrap = el.closest('.form-field');
-        const errEl = document.getElementById(err);
-        const ok = fieldValid(key);
-
-        if (!touched.has(key)) { wrap.classList.remove('is-invalid', 'is-valid'); errEl.textContent = ''; return; }
-
-        wrap.classList.toggle('is-invalid', !ok);
-        wrap.classList.toggle('is-valid', ok);
-        el.setAttribute('aria-invalid', ok ? 'false' : 'true');
-        errEl.textContent = ok ? '' : msg;
-    };
-
-    const refresh = () => {
-        Object.keys(RULES).forEach(paint);
-        if (touched.has('need')) {
-            document.getElementById('cf-need-err').textContent =
-                needChosen() ? '' : 'Pick the closest option.';
-        }
-        submitBtn.disabled = !formValid();
-    };
-
-    Object.entries(RULES).forEach(([key, { el }]) => {
-        el.addEventListener('blur',  () => { touched.add(key); refresh(); });
-        el.addEventListener('input', refresh);
-    });
-
-    form.querySelectorAll('input[name="need"]').forEach((r) =>
-        r.addEventListener('change', () => { touched.add('need'); refresh(); }));
-
-    const setStatus = (kind, text) => {
-        statusEl.className = 'form-status' + (kind ? ' is-' + kind : '');
-        statusEl.textContent = text;
-    };
-
-    const setLoading = (on) => {
-        submitBtn.classList.toggle('is-loading', on);
-        submitBtn.disabled = on || !formValid();
-        submitBtn.querySelector('.btn-label').textContent = on ? 'Sending…' : 'Send Enquiry';
-        form.querySelectorAll('input, textarea').forEach((el) => { el.disabled = on; });
-    };
-
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        // Honeypot tripped: pretend it worked, drop it on the floor.
-        if (form.website.value.trim() !== '') {
-            setStatus('success', 'Thanks — we’ll be in touch shortly.');
-            form.reset();
-            return;
-        }
-
-        Object.keys(RULES).forEach((k) => touched.add(k));
-        touched.add('need');
-        refresh();
-        if (!formValid()) {
-            setStatus('error', 'A couple of fields still need attention.');
-            return;
-        }
-
-        const payload = {
-            name:    form.name.value.trim(),
-            company: form.company.value.trim(),
-            email:   form.email.value.trim(),
-            phone:   form.phone.value.trim(),
-            need:    form.querySelector('input[name="need"]:checked').value,
-            message: form.message.value.trim(),
-            submittedAt: new Date().toISOString(),
-            source: 'software.butaliamedia.com',
-        };
-
-        // No endpoint configured yet — hand off rather than fail silently.
-        if (!CONTACT_ENDPOINT) {
-            console.warn('[contact] CONTACT_ENDPOINT is not set; falling back to the Google Form.');
-            setStatus('success', 'Opening our enquiry form in a new tab…');
-            window.open(CONTACT_FALLBACK_URL, '_blank', 'noopener');
-            return;
-        }
-
-        setLoading(true);
-        setStatus('', '');
-
-        try {
-            const res = await fetch(CONTACT_ENDPOINT, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-            });
-            if (!res.ok) throw new Error('HTTP ' + res.status);
-
-            form.reset();
-            touched.clear();
-            refresh();
-            form.querySelectorAll('.form-field').forEach((f) =>
-                f.classList.remove('is-valid', 'is-invalid'));
-            setStatus('success', 'Thanks — we’ve got it. We read every enquiry ourselves and will reply with next steps.');
-            submitBtn.querySelector('.btn-label').textContent = 'Sent ✓';
-        } catch (err) {
-            console.error('[contact] submit failed:', err);
-            setStatus('error', 'Something went wrong sending that. Please email info@butaliamedia.com and we’ll pick it up from there.');
-        } finally {
-            setLoading(false);
-        }
-    });
-
-    refresh();
-})();

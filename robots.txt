@@ -4,4 +4,4 @@ Allow: /landing2025/
 Disallow: /clientPages/
 Disallow: /_archive/
 
-Sitemap: https://butaliamedia.com/sitemap.xml
+Sitemap: https://software.butaliamedia.com/sitemap.xml

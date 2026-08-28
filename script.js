@@ -255,13 +255,23 @@ console.log('%cBuilt with modern web technologies', 'font-size: 14px; color: #6B
 console.log('%cInterested in working with us? Visit: https://butaliamedia.com', 'font-size: 12px; color: #9CA3AF;');
 
 // ===================================
-// Contact form
+// Contact form  (BM Notification Hub)
 // ===================================
-// Drop your endpoint URL in here when it's ready. It should accept a POST with
-// a JSON body and reply 2xx on success. While this is empty the form stays in
-// fallback mode and hands people to the Google Form, so no enquiry is lost.
-const CONTACT_ENDPOINT = '';
+// The hub handles delivery, credentials and abuse control server-side; this
+// page just makes one POST. Docs: https://bm-notify.bmcstack.com/skill.md
+const NOTIFY_BASE_URL = 'https://bm-notify.bmcstack.com';
+const NOTIFY_SITE     = 'software.butaliamedia.com';
+const NOTIFY_API_KEY = '8RMzFRjLPqHhu6ynQmv7XU';
+
+// Set to false if this site is registered without spamChecks.
+const NOTIFY_SPAM_CHECKS = true;
+
+// Used until the API key is in place, so no enquiry is lost in the meantime.
 const CONTACT_FALLBACK_URL = 'https://forms.gle/pnxTFrbDFSVFo7Jk6';
+
+// Captured once at page render. The hub's timing check needs the moment the
+// page loaded, not the moment of submit.
+const NOTIFY_RENDERED_AT = Date.now();
 
 (() => {
     const form = document.getElementById('contact-form');
@@ -277,29 +287,27 @@ const CONTACT_FALLBACK_URL = 'https://forms.gle/pnxTFrbDFSVFo7Jk6';
     };
 
     const emailOk = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
-
     const fieldValid = (key) => {
         const v = RULES[key].el.value.trim();
         return key === 'email' ? emailOk(v) : v.length > 0;
     };
-
     const needChosen = () => !!form.querySelector('input[name="need"]:checked');
+    const formValid  = () => Object.keys(RULES).every(fieldValid) && needChosen();
 
-    const formValid = () =>
-        Object.keys(RULES).every(fieldValid) && needChosen();
-
-    // Show an error only after the user has left the field once, so we're not
-    // scolding them mid-typing.
+    // Only complain about a field once the user has left it.
     const touched = new Set();
 
     const paint = (key) => {
         const { el, err, msg } = RULES[key];
-        const wrap = el.closest('.form-field');
+        const wrap  = el.closest('.form-field');
         const errEl = document.getElementById(err);
-        const ok = fieldValid(key);
+        const ok    = fieldValid(key);
 
-        if (!touched.has(key)) { wrap.classList.remove('is-invalid', 'is-valid'); errEl.textContent = ''; return; }
-
+        if (!touched.has(key)) {
+            wrap.classList.remove('is-invalid', 'is-valid');
+            errEl.textContent = '';
+            return;
+        }
         wrap.classList.toggle('is-invalid', !ok);
         wrap.classList.toggle('is-valid', ok);
         el.setAttribute('aria-invalid', ok ? 'false' : 'true');
@@ -319,7 +327,6 @@ const CONTACT_FALLBACK_URL = 'https://forms.gle/pnxTFrbDFSVFo7Jk6';
         el.addEventListener('blur',  () => { touched.add(key); refresh(); });
         el.addEventListener('input', refresh);
     });
-
     form.querySelectorAll('input[name="need"]').forEach((r) =>
         r.addEventListener('change', () => { touched.add('need'); refresh(); }));
 
@@ -335,15 +342,12 @@ const CONTACT_FALLBACK_URL = 'https://forms.gle/pnxTFrbDFSVFo7Jk6';
         form.querySelectorAll('input, textarea').forEach((el) => { el.disabled = on; });
     };
 
+    // The hub caps subject at 200, message at 5000 and each field value at 500.
+    const clamp = (v, n) => String(v || '').slice(0, n);
+    const oneLine = (v) => String(v || '').replace(/[\r\n]+/g, ' ').trim();
+
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-
-        // Honeypot tripped: pretend it worked, drop it on the floor.
-        if (form.website.value.trim() !== '') {
-            setStatus('success', 'Thanks — we’ll be in touch shortly.');
-            form.reset();
-            return;
-        }
 
         Object.keys(RULES).forEach((k) => touched.add(k));
         touched.add('need');
@@ -353,20 +357,31 @@ const CONTACT_FALLBACK_URL = 'https://forms.gle/pnxTFrbDFSVFo7Jk6';
             return;
         }
 
-        const payload = {
-            name:    form.name.value.trim(),
-            company: form.company.value.trim(),
-            email:   form.email.value.trim(),
-            phone:   form.phone.value.trim(),
-            need:    form.querySelector('input[name="need"]:checked').value,
-            message: form.message.value.trim(),
-            submittedAt: new Date().toISOString(),
-            source: 'software.butaliamedia.com',
-        };
+        const name  = form.name.value.trim();
+        const need  = form.querySelector('input[name="need"]:checked').value;
 
-        // No endpoint configured yet — hand off rather than fail silently.
-        if (!CONTACT_ENDPOINT) {
-            console.warn('[contact] CONTACT_ENDPOINT is not set; falling back to the Google Form.');
+        // Anything beyond the hub's known top-level keys must live in `fields`;
+        // unknown top-level keys are rejected with a 400.
+        const fields = { Name: clamp(name, 500), Need: clamp(need, 500) };
+        if (form.company.value.trim()) fields.Company = clamp(form.company.value.trim(), 500);
+        if (form.phone.value.trim())   fields.Phone   = clamp(form.phone.value.trim(), 500);
+
+        const payload = {
+            type: 'email',
+            site: NOTIFY_SITE,
+            subject: clamp(oneLine(`New enquiry from ${name} (${need})`), 200),
+            message: clamp(form.message.value.trim(), 5000),
+            replyTo: form.email.value.trim(),
+            fields,
+        };
+        if (NOTIFY_SPAM_CHECKS) {
+            payload.hp = form.website.value;
+            payload.startedAt = NOTIFY_RENDERED_AT;
+        }
+
+        // No key yet: hand off rather than 401 at the visitor.
+        if (!NOTIFY_API_KEY) {
+            console.warn('[contact] NOTIFY_API_KEY is not set; using the fallback form.');
             setStatus('success', 'Opening our enquiry form in a new tab…');
             window.open(CONTACT_FALLBACK_URL, '_blank', 'noopener');
             return;
@@ -376,25 +391,39 @@ const CONTACT_FALLBACK_URL = 'https://forms.gle/pnxTFrbDFSVFo7Jk6';
         setStatus('', '');
 
         try {
-            const res = await fetch(CONTACT_ENDPOINT, {
+            const res = await fetch(`${NOTIFY_BASE_URL}/api/notify`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'X-API-Key': NOTIFY_API_KEY },
                 body: JSON.stringify(payload),
             });
-            if (!res.ok) throw new Error('HTTP ' + res.status);
 
-            form.reset();
-            touched.clear();
-            refresh();
-            form.querySelectorAll('.form-field').forEach((f) =>
-                f.classList.remove('is-valid', 'is-invalid'));
-            setStatus('success', 'Thanks — we’ve got it. We read every enquiry ourselves and will reply with next steps.');
-            submitBtn.querySelector('.btn-label').textContent = 'Sent ✓';
+            if (res.ok) {
+                form.reset();
+                touched.clear();
+                refresh();
+                form.querySelectorAll('.form-field').forEach((f) =>
+                    f.classList.remove('is-valid', 'is-invalid'));
+                setStatus('success', "Thanks, we've got it. We read every enquiry ourselves and will reply with next steps.");
+                setLoading(false);
+                submitBtn.querySelector('.btn-label').textContent = 'Sent ✓';
+                submitBtn.disabled = true;
+                return;
+            }
+
+            // error.code is for our logs, never for the visitor.
+            const body = await res.json().catch(() => ({}));
+            const ref  = body.requestId ? ` (ref ${body.requestId})` : '';
+            console.error('[contact] hub rejected submission:', res.status, body.error, body.requestId);
+
+            setStatus('error', res.status === 429
+                ? 'Too many messages just now. Please try again in a minute, or email info@butaliamedia.com.'
+                : `Something went wrong sending that. Please email info@butaliamedia.com and we'll pick it up from there${ref}.`);
         } catch (err) {
-            console.error('[contact] submit failed:', err);
-            setStatus('error', 'Something went wrong sending that. Please email info@butaliamedia.com and we’ll pick it up from there.');
+            console.error('[contact] could not reach the hub:', err);
+            setStatus('error', "Could not reach the server. Please email info@butaliamedia.com and we'll pick it up from there.");
         } finally {
-            setLoading(false);
+            // The success path already reset the button to "Sent ✓".
+            if (submitBtn.classList.contains('is-loading')) setLoading(false);
         }
     });
 
